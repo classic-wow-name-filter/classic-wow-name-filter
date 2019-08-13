@@ -16,6 +16,21 @@
 			}
 			const div = document.getElementById("results");
 			div.innerHTML = "<tr><th>id</th><th>exp</th><th>text</th></tr>";
+			for(var i = 0; i < text.length - 2; ++i) {
+					if(i + 2 < text.length) {
+						if(text[i] === text[i+1] && text[i] === text[i+2]) {
+							results.push({
+							"rule":{
+								"id":"none",
+								"exp_string":"tripple character"
+							},
+							"match":{
+								"index":i,
+								"0": "" + text[i] + text[i] + text[i]
+							}});
+						}
+					}
+				}
 			for(const res of results) {
 				const rule = res.rule;
 				const match = res.match;
