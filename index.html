@@ -14,7 +14,9 @@
 				}
 			};
 		}
-		
+		function is_disallowed(c) {
+			return c === ' ' || c === '_' || ('0' <= c && c <= '9');
+		}
 		function update() {
 			const text = document.getElementById("name_field").value.toLowerCase();
 			if(text === last_text)
@@ -30,12 +32,15 @@
 				}
 				results.push(make_rule("to long, max 12 characters", 12, red_part));
 			}
-			else {
-				for(const obj of csv_rules) {
-					const match = text.match(obj.exp);
-					if(match && match.length) {
-						results.push({"rule":obj, "match":match});
-					}
+			for(var i = 0; i < text.length; ++i) {
+				if(is_disallowed(text[i])) {
+					results.push(make_rule("disallowed character", i, text[i]));
+				}
+			}
+			for(const obj of csv_rules) {
+				const match = text.match(obj.exp);
+				if(match && match.length) {
+					results.push({"rule":obj, "match":match});
 				}
 			}
 			const div = document.getElementById("results");
