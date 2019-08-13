@@ -1,0 +1,52 @@
+<html>
+	<script src="namesprofanity.js" charset="utf-8"></script>
+	<script>
+		var last_text = null;
+		function update() {
+			const text = document.getElementById("name_field").value.toLowerCase();
+			if(text === last_text)
+				return;
+			last_text = text;
+			const results = [];
+			for(const obj of csv_rules) {
+				const match = text.match(obj.exp);
+				if(match && match.length) {
+					results.push({"rule":obj, "match":match});
+				}
+			}
+			const div = document.getElementById("results");
+			div.innerHTML = "<tr><th>id</th><th>exp</th><th>text</th></tr>";
+			for(const res of results) {
+				const rule = res.rule;
+				const match = res.match;
+				var table_entry = "<tr><td>" + rule.id + "</td><td>" + rule.exp_string + "</td><td>";
+				const underline_start = match.index;
+				const underline_length = match[0].length;
+				for(var i = 0; i < underline_start; ++i) {
+					table_entry += text[i];
+				}
+				table_entry += '<font color="red">';
+				for(var i = 0; i < underline_length; ++i) {
+					table_entry += text[underline_start + i];
+				}
+				table_entry += "</font>";
+				for(var i = underline_start + underline_length; i < text.length; ++i) {
+					table_entry += text[i];
+				}
+				table_entry += "</td></tr>"
+				div.innerHTML += table_entry;
+			}
+			if(results.length < 1) {
+				div.innerHTML += '<tr><td>none</td><td>none</td><td><font = color="green">' + text + "</font></td></tr>"
+			}
+		}
+	</script>
+	<input id="name_field" onchange="update()" onkeypress="update()" onpaste="update()" oninput="update()" />
+	<table id="results" >
+		<tr>
+			<th>id</th>
+			<th>exp</th>
+			<th>text</th>
+		</tr>
+	</table>
+</html>
