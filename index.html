@@ -2,16 +2,40 @@
 	<script src="namesprofanity.js" charset="utf-8"></script>
 	<script>
 		var last_text = null;
+		function make_rule(exp, index, text) {
+			return {
+				"rule": {
+						"id": "none",
+						"exp_string": exp
+				},
+				"match": {
+					"index": index,
+					"0": text
+				}
+			};
+		}
+		
 		function update() {
 			const text = document.getElementById("name_field").value.toLowerCase();
 			if(text === last_text)
 				return;
 			last_text = text;
 			const results = [];
-			for(const obj of csv_rules) {
-				const match = text.match(obj.exp);
-				if(match && match.length) {
-					results.push({"rule":obj, "match":match});
+			if(text.length < 2) {
+				results.push(make_rule("to short, min 2 characters", 0, text));
+			} else if(text.length > 12) {
+				var red_part = "";
+				for(var i = 12; i < text.length; ++i) {
+					red_part += text[i];
+				}
+				results.push(make_rule("to long, max 12 characters", 12, red_part));
+			}
+			else {
+				for(const obj of csv_rules) {
+					const match = text.match(obj.exp);
+					if(match && match.length) {
+						results.push({"rule":obj, "match":match});
+					}
 				}
 			}
 			const div = document.getElementById("results");
@@ -19,15 +43,7 @@
 			for(var i = 0; i < text.length - 2; ++i) {
 					if(i + 2 < text.length) {
 						if(text[i] === text[i+1] && text[i] === text[i+2]) {
-							results.push({
-							"rule":{
-								"id":"none",
-								"exp_string":"tripple character"
-							},
-							"match":{
-								"index":i,
-								"0": "" + text[i] + text[i] + text[i]
-							}});
+							results.push(make_rule("tripple character", i, text[i] + text[i] + text[i]));
 						}
 					}
 				}
