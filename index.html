@@ -1,5 +1,6 @@
 <html>
 	<script src="namesprofanity.js" charset="utf-8"></script>
+	<script src="namesreserved.js" charset="utf-8"></script>
 	<script>
 		var last_text = null;
 		function make_rule(exp, index, text) {
@@ -11,7 +12,8 @@
 				"match": {
 					"index": index,
 					"0": text
-				}
+				},
+				"type": "general"
 			};
 		}
 		function is_disallowed(c) {
@@ -37,14 +39,20 @@
 					results.push(make_rule("disallowed character", i, text[i]));
 				}
 			}
-			for(const obj of csv_rules) {
+			for(const obj of profanity_rules) {
 				const match = text.match(obj.exp);
 				if(match && match.length) {
-					results.push({"rule":obj, "match":match});
+					results.push({"rule":obj, "match":match, "type":"profanity"});
+				}
+			}
+			for(const obj of reserved_rules) {
+				const match = text.match(obj.exp);
+				if(match && match.length) {
+					results.push({"rule":obj, "match":match, "type":"reserved"});
 				}
 			}
 			const div = document.getElementById("results");
-			div.innerHTML = "<tr><th>id</th><th>exp</th><th>text</th></tr>";
+			div.innerHTML = "<tr><th>type</th><th>id</th><th>exp</th><th>text</th></tr>";
 			for(var i = 0; i < text.length - 2; ++i) {
 					if(i + 2 < text.length) {
 						if(text[i] === text[i+1] && text[i] === text[i+2]) {
@@ -55,17 +63,18 @@
 			for(const res of results) {
 				const rule = res.rule;
 				const match = res.match;
-				var table_entry = "<tr><td>" + rule.id + "</td><td>" + rule.exp_string + "</td><td>";
+				const type = res.type;
+				var table_entry = "<tr><td>" + type + "</td><td>" + rule.id + "</td><td>" + rule.exp_string + "</td><td>";
 				const underline_start = match.index;
 				const underline_length = match[0].length;
 				for(var i = 0; i < underline_start; ++i) {
 					table_entry += text[i];
 				}
-				table_entry += '<font color="red">';
+				table_entry += '<mark>';
 				for(var i = 0; i < underline_length; ++i) {
 					table_entry += text[underline_start + i];
 				}
-				table_entry += "</font>";
+				table_entry += "</mark>";
 				for(var i = underline_start + underline_length; i < text.length; ++i) {
 					table_entry += text[i];
 				}
@@ -73,16 +82,47 @@
 				div.innerHTML += table_entry;
 			}
 			if(results.length < 1) {
-				div.innerHTML += '<tr><td>none</td><td>none</td><td><font = color="green">' + text + "</font></td></tr>"
+				div.innerHTML += '<tr><td>allowed</td><td></td><td></td><td><font = color="green">' + text + "</font></td></tr>"
 			}
 		}
 	</script>
+	<style>
+		#results {
+		  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+		  border-collapse: collapse;
+		  width: 100%;
+		}
+
+		#results td, #results th {
+		  border: 1px solid #ddd;
+		  padding: 8px;
+		}
+
+		#results tr:nth-child(even){background-color: #f2f2f2;}
+
+		#results tr:hover {background-color: #ddd;}
+
+		#results th {
+		  padding-top: 12px;
+		  padding-bottom: 12px;
+		  text-align: left;
+		  background-color: #4CAF50;
+		  color: white;
+		}
+	</style>
 	<input id="name_field" onchange="update()" onkeypress="update()" onpaste="update()" oninput="update()" />
 	<table id="results" >
 		<tr>
+			<th>type</th>
 			<th>id</th>
 			<th>exp</th>
 			<th>text</th>
+		</tr>
+		<tr>
+			<td>general</td>
+			<td>none</td>
+			<td>to short, min 2 characters</td>
+			<td></td>
 		</tr>
 	</table>
 </html>

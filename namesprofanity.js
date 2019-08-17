@@ -1,4 +1,4 @@
-const csv_rules = [
+const profanity_rules = [
 	{ "id":"2621", "exp_string":"18년", "exp":new RegExp("18년") },
 	{ "id":"2622", "exp_string":"18놈", "exp":new RegExp("18놈") },
 	{ "id":"2624", "exp_string":"18새끼", "exp":new RegExp("18새끼") },
